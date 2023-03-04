@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+    <div class="header">
+        <h4 id="page_head" class="page_head">Input Page</h4>
+        <button id="rescrape">Scrape Another Profile</button>
+    </div>
+
+    <div id="input" class="input container">
+        <div class="child">
+            <h2 class="title">Linkedin Proflie Scraper</h2>
+        </div>
+        <div class="child inp_div">
+            <input class="url_input" id="url_input" type="text" placeholder="Enter URL of Linkedin Profile">
+        </div>
+        <div class="child">
+            <button id="submit_url">Submit</button>
+        </div>
+        <div class="child" id="alert">
+        </div>
+    </div>
+
+    <div id="output" class="output container">
+        <div class="child">
+            <div class="child_title">Name</div>
+            <div class="child_content" id="name"></div>
+        </div>
+        <div class="child">
+            <div class="child_title">Title Description: </div>
+            <div class="child_content" id="description"></div>
+        </div>
+        <div class="child">
+            <div class="child_title">Location: </div>
+            <div class="child_content" id="location"></div>
+        </div>
+        <div class="child">
+            <div class="child_title">About: </div>
+            <div class="child_content" id="about"></div>
+        </div>
+        <div class="child">
+            <div class="child_title">Experiences: </div>
+            <div class="child_content" id="experiences"></div>
+        </div>
+        <div class="child">
+            <div class="child_title">Education: </div>
+            <div class="child_content" id="education"></div>
+        </div>
+        <div class="child">
+            <div class="child_title">Recommendations: </div>
+            <div class="child_content" id="recommendations"></div>
+        </div>
+    </div>
+
+</body>
+
+<script>
+    document.getElementById('submit_url').onclick = () => {
+        var url = "";
+        url = document.getElementById('url_input').value;
+        if (url == "") {
+            alert("Enter url.")
+        }
+        else {
+            fetch("http://localhost" + ":" + "8080" + "/urldata?url=" + url)
+                .then(res => {
+                    console.log(res);
+                    if (res.status != 200) {
+                        throw res.statusText;
+                    }
+                    return res.json();
+                })
+                .then(urldata => {
+                    document.getElementById('name').innerHTML += urldata.name;
+                    document.getElementById('description').innerHTML += urldata.description;
+                    document.getElementById('location').innerHTML += urldata.location;
+                    document.getElementById('about').innerHTML += urldata.about;
+
+                    var exp = '<ul>', edu = '<ul>', rec = '<ul>';
+                    urldata.experiences.forEach((item) => {
+                        exp += '<li>' + item + '</li>';
+                    })
+                    document.getElementById('experiences').innerHTML += exp + '</ul>';
+                    urldata.education.forEach(item => {
+                        edu += '<li>' + item + '</li>';
+                    })
+                    document.getElementById('education').innerHTML += edu + '</ul>';
+                    urldata.recommendations.forEach(item => {
+                        rec += '<li>' + item + '</li>';
+                    })
+                    document.getElementById('recommendations').innerHTML += rec + '</ul>';
+                })
+                .then(() => {
+                    document.getElementById('page_head').innerText = 'Output Page';
+                    document.getElementById('input').style.display = 'none';
+                    document.getElementById('output').style.display = 'inline';
+                    document.getElementById('url_input').value = '';
+                    document.getElementById('rescrape').style.display = 'inline';
+                })
+                .catch((error) => {
+                    document.getElementById('alert').innerHTML = error;
+                    document.getElementById('alert').style.display = 'inline';
+                })
+        }
+    }
+
+    document.getElementById('rescrape').onclick = () => {
+        document.getElementById('alert').style.display = 'none';
+        document.getElementById('rescrape').style.display = 'none';
+        document.getElementById('name').innerHTML = '';
+        document.getElementById('description').innerHTML = '';
+        document.getElementById('location').innerHTML = '';
+        document.getElementById('about').innerHTML = '';
+        document.getElementById('experiences').innerHTML = '';
+        document.getElementById('education').innerHTML = '';
+        document.getElementById('recommendations').innerHTML = '';
+
+        document.getElementById('output').style.display = 'none';
+        document.getElementById('input').style.display = 'flex';
+    }
+</script>
+
+
+<style>
+    body {
+        background-color: lightgray;
+        height: 100%;
+    }
+
+    .alert{
+        display: none;
+    }
+    .header {
+        display: flex;
+        justify-content: space-between;
+        margin: 8pt 14pt 8pt 14pt;
+    }
+
+    .page_head {
+        color: white;
+        background-color: green;
+        font-size: 14pt;
+        border-radius: 4pt;
+        padding: 2pt 8pt 2pt 8pt;
+        margin: 0pt;
+    }
+
+    #rescrape {
+        display: none;
+    }
+
+    .input {
+        display: flex;
+    }
+
+    .output {
+        display: none;
+    }
+
+    .container {
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        /* background-color: red; */
+    }
+
+    .child {
+        padding: 6pt;
+        /* background-color: blue; */
+    }
+
+    .output .child {
+        margin-left: 24pt;
+        margin-right: 24pt;
+    }
+
+    .child_title {
+        font-weight: bold;
+        text-decoration: underline;
+        margin-bottom: 4px;
+    }
+
+    .child_content {
+        padding-left: 14pt;
+    }
+
+    button {
+        border-radius: 12pt;
+        padding: 4pt 24pt 4pt 24pt;
+        background-color: white;
+        color: black;
+        /* font-weight: bold;
+        border-style: solid; */
+        border-color: white;
+    }
+
+    .title {
+        font-size: 26pt;
+        padding: 0pt;
+        margin: 6pt;
+    }
+
+    .url_input {
+        background-color: green;
+        border-style: solid;
+        border-color: green;
+        border-radius: 20pt;
+        outline: none;
+        font-size: 14pt;
+        padding: 4pt 10pt 4pt 10pt;
+        color: black;
+        text-align: center;
+        width: 70%;
+    }
+
+    .url_input::placeholder {
+        opacity: 1;
+        color: black;
+        text-align: center;
+    }
+
+    .inp_div {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+</style>
+
+</html>
